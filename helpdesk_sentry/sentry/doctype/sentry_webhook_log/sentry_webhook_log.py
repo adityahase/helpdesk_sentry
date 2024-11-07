@@ -22,7 +22,7 @@ class SentryWebhookLog(Document):
 		# Truncate long strings to fit in Data field
 		self.title = event.get("title", "")[:139]
 		self.transaction = event.get("transaction", "")[:139]
-		self.triggered_rule = self.data.get("triggered_rule", "")[:139] or "press-errors-copy"
+		self.triggered_rule = self.data.get("triggered_rule", "")[:139]
 
 	def validate(self):
 		self.validate_signature()
