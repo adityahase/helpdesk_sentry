@@ -46,7 +46,7 @@ class SentryWebhookLog(Document):
 
 	@frappe.whitelist()
 	def process_webhook(self):
-		if self.triggered_rule in self.rules:
+		if self.triggered_rule in self.alert_rules:
 			self.create_or_set_ticket()
 
 	def create_or_set_ticket(self):
@@ -76,7 +76,7 @@ class SentryWebhookLog(Document):
 			ticket.subject = f"[Sentry] {self.title}"[:139]
 			ticket.raised_by = self.settings.support_user
 			ticket.custom_app = "Sentry"
-			ticket.agent_group = self.rules.get(self.triggered_rule)
+			ticket.agent_group = self.alert_rules.get(self.triggered_rule)
 			ticket.ticket_type = self.settings.ticket_type
 			link = self.data.get('event', {}).get('web_url', '')
 			ticket.description = f"""<p>
@@ -102,8 +102,8 @@ class SentryWebhookLog(Document):
 		return json.loads(self.payload).get("data", {})
 
 	@cached_property
-	def rules(self):
-		return {rule.alert_rule: rule.agent_group for rule in self.alert_rules}
+	def alert_rules(self):
+		return {rule.alert_rule: rule.agent_group for rule in self.settings.alert_rules}
 
 	@cached_property
 	def settings(self):
