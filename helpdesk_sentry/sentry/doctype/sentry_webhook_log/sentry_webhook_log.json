@@ -5,11 +5,13 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "payload",
-  "issue_id",
   "title",
+  "issue_id",
   "transaction",
-  "signature"
+  "column_break_khxu",
+  "signature",
+  "section_break_sybu",
+  "payload"
  ],
  "fields": [
   {
@@ -17,7 +19,8 @@
    "fieldtype": "Code",
    "in_list_view": 1,
    "label": "Payload",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "issue_id",
@@ -44,11 +47,19 @@
    "label": "Signature",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_khxu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_sybu",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-07 19:23:54.278858",
+ "modified": "2024-11-07 19:35:32.098998",
  "modified_by": "Administrator",
  "module": "Sentry",
  "name": "Sentry Webhook Log",
