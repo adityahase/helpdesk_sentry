@@ -22,7 +22,7 @@ class SentryWebhookLog(Document):
 		# Truncate long strings to fit in Data field
 		self.title = event.get("title", "")[:139]
 		self.transaction = event.get("transaction", "")[:139]
-		self.triggered_rule = self.data.get("triggered_rule", "")[:139]
+		self.triggered_rule = self.data.get("triggered_rule", "")[:139] or "press-errors-copy"
 
 	def validate(self):
 		self.validate_signature()
@@ -30,8 +30,8 @@ class SentryWebhookLog(Document):
 	def validate_signature(self):
 		client_secret = self.settings.get_password("client_secret")
 		computed_signature = hmac.new(
-			key=client_secret.encode('utf-8'),
-			msg=self.payload.encode('utf-8'),
+			key=client_secret.encode("utf-8"),
+			msg=self.payload.encode("utf-8"),
 			digestmod=hashlib.sha256,
 		).hexdigest()
 
@@ -41,7 +41,9 @@ class SentryWebhookLog(Document):
 	def after_insert(self):
 		current_user = frappe.session.user
 		frappe.set_user(self.settings.support_user)
-		frappe.enqueue_doc(self.doctype, self.name, method="process_webhook", queue='long', enqueue_after_commit=True)
+		frappe.enqueue_doc(
+			self.doctype, self.name, method="process_webhook", queue="long", enqueue_after_commit=True
+		)
 		frappe.set_user(current_user)
 
 	@frappe.whitelist()
@@ -54,21 +56,25 @@ class SentryWebhookLog(Document):
 		1. If there is an open ticket for the same issue, then set the ticket in the log.
 		2. If there is no open ticket, then create a new ticket.
 		"""
-		if ticket:= self.get_open_ticket():
+		if ticket := self.get_open_ticket():
 			self.ticket = ticket[0].name
 			self.save()
 		else:
 			self.create_support_ticket()
 
 	def get_open_ticket(self):
-		return frappe.db.sql("""
+		return frappe.db.sql(
+			"""
 			SELECT ticket.name
 			FROM `tabSentry Webhook Log` log
 			LEFT JOIN `tabHD Ticket` ticket ON log.ticket = ticket.name
 			WHERE log.name != %s AND log.issue_id = %s AND log.ticket IS NOT NULL AND ticket.status = 'Open'
 			ORDER BY log.creation DESC
 			LIMIT 1
-		""", (self.name, self.issue_id), as_dict=True)
+		""",
+			(self.name, self.issue_id),
+			as_dict=True,
+		)
 
 	def create_support_ticket(self):
 		try:
@@ -78,7 +84,7 @@ class SentryWebhookLog(Document):
 			ticket.custom_app = "Sentry"
 			ticket.agent_group = self.alert_rules.get(self.triggered_rule)
 			ticket.ticket_type = self.settings.ticket_type
-			link = self.data.get('event', {}).get('web_url', '')
+			link = self.data.get("event", {}).get("web_url", "")
 			ticket.description = f"""<p>
 			This is auto-generated ticket because an error occurred 10+ times and affects multiple users.<br>
 

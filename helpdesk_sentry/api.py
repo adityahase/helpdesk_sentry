@@ -10,7 +10,7 @@ def hook(*args, **kwargs):
 		{
 			"doctype": "Sentry Webhook Log",
 			"payload": frappe.request.get_data(as_text=True),
-			"signature": frappe.request.headers.get('sentry-hook-signature'),
+			"signature": frappe.request.headers.get("sentry-hook-signature"),
 		}
 	)
 	try:
@@ -19,4 +19,3 @@ def hook(*args, **kwargs):
 	except Exception as e:
 		frappe.log_error("Sentry Webhook Insert Error")
 		raise e
-
