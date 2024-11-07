@@ -10,6 +10,8 @@
   "transaction",
   "column_break_khxu",
   "signature",
+  "ticket",
+  "triggered_rule",
   "section_break_sybu",
   "payload"
  ],
@@ -17,7 +19,6 @@
   {
    "fieldname": "payload",
    "fieldtype": "Code",
-   "in_list_view": 1,
    "label": "Payload",
    "read_only": 1,
    "reqd": 1
@@ -25,6 +26,8 @@
   {
    "fieldname": "issue_id",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Issue ID",
    "read_only": 1
   },
@@ -43,7 +46,6 @@
   {
    "fieldname": "signature",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Signature",
    "read_only": 1,
    "reqd": 1
@@ -55,11 +57,26 @@
   {
    "fieldname": "section_break_sybu",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ticket",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Ticket",
+   "options": "HD Ticket",
+   "read_only": 1
+  },
+  {
+   "fieldname": "triggered_rule",
+   "fieldtype": "Data",
+   "label": "Triggered Rule",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-07 19:35:32.098998",
+ "modified": "2024-11-07 22:09:55.240484",
  "modified_by": "Administrator",
  "module": "Sentry",
  "name": "Sentry Webhook Log",
