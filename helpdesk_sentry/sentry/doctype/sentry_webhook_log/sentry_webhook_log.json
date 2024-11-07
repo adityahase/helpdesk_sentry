@@ -8,12 +8,14 @@
   "payload",
   "issue_id",
   "title",
-  "transaction"
+  "transaction",
+  "signature"
  ],
  "fields": [
   {
    "fieldname": "payload",
    "fieldtype": "Code",
+   "in_list_view": 1,
    "label": "Payload",
    "read_only": 1
   },
@@ -34,11 +36,19 @@
    "fieldtype": "Data",
    "label": "Transaction",
    "read_only": 1
+  },
+  {
+   "fieldname": "signature",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Signature",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-07 17:56:22.345939",
+ "modified": "2024-11-07 19:23:54.278858",
  "modified_by": "Administrator",
  "module": "Sentry",
  "name": "Sentry Webhook Log",
