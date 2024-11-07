@@ -1,1 +1,1 @@
-Helpdesk Sentry Integration
+Sentry
