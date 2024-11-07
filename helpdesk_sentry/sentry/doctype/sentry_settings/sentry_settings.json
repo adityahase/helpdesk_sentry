@@ -5,19 +5,45 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "client_secret"
+  "client_secret",
+  "support_user",
+  "sentry_ticket_type",
+  "alert_rules"
  ],
  "fields": [
   {
    "fieldname": "client_secret",
    "fieldtype": "Password",
    "label": "Client Secret"
+  },
+  {
+   "fieldname": "support_user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Support User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sentry_ticket_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sentry Ticket Type",
+   "options": "HD Ticket Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "alert_rules",
+   "fieldtype": "Table",
+   "label": "Alert Rules",
+   "options": "Sentry Alert Rule",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-11-07 19:25:50.412191",
+ "modified": "2024-11-07 23:14:03.477809",
  "modified_by": "Administrator",
  "module": "Sentry",
  "name": "Sentry Settings",

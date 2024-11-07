@@ -9,36 +9,26 @@ from functools import cached_property
 import frappe
 from frappe.model.document import Document
 
-RULES = {
-	"auto-support-ticket": {"group": "L2 Unclassified (Sentry events)", "regressed": False},
-	"press-errors": {"group": "L2 FC", "regressed": True},
-	"press-dashboard-errors": {"group": "L2 FC", "regressed": True},
-	"press-dashboard-v2-errors": {"group": "L2 FC", "regressed": True},
-	"agent-errors": {"group": "L2 FC", "regressed": True},
-	"press-errors-copy": {"group": "L2 FC", "regressed": True},
-	"": {"group": "L2 FC", "regressed": True},
-}
-
 
 class SentryWebhookLog(Document):
 	def before_insert(self):
 		self.set_fields()
 
 	def set_fields(self):
-		payload = json.loads(self.payload)
-		event = payload.get("data", {}).get("event", {})
+		event = self.data.get("event", {})
 
 		self.issue_id = event.get("issue_id")
 
 		# Truncate long strings to fit in Data field
 		self.title = event.get("title", "")[:139]
 		self.transaction = event.get("transaction", "")[:139]
+		self.triggered_rule = self.data.get("triggered_rule", "")[:139]
 
 	def validate(self):
 		self.validate_signature()
 
 	def validate_signature(self):
-		client_secret = frappe.get_single("Sentry Settings").get_password("client_secret")
+		client_secret = self.settings.get_password("client_secret")
 		computed_signature = hmac.new(
 			key=client_secret.encode('utf-8'),
 			msg=self.payload.encode('utf-8'),
@@ -50,14 +40,13 @@ class SentryWebhookLog(Document):
 
 	def after_insert(self):
 		current_user = frappe.session.user
-		frappe.set_user("support-bot@frappe.io")
+		frappe.set_user(self.settings.support_user)
 		frappe.enqueue_doc(self.doctype, self.name, method="process_webhook", queue='long', enqueue_after_commit=True)
 		frappe.set_user(current_user)
 
 	@frappe.whitelist()
 	def process_webhook(self):
-		self.rule = self.data.get("triggered_rule")
-		if self.rule in RULES:
+		if self.triggered_rule in self.rules:
 			self.create_or_set_ticket()
 
 	def create_or_set_ticket(self):
@@ -82,14 +71,13 @@ class SentryWebhookLog(Document):
 		""", (self.name, self.issue_id), as_dict=True)
 
 	def create_support_ticket(self):
-		agent_group = RULES.get(self.rule, {}).get("group")
 		try:
 			ticket = frappe.new_doc("HD Ticket")
 			ticket.subject = f"[Sentry] {self.title}"[:139]
-			ticket.raised_by = "support-bot@frappe.io"
+			ticket.raised_by = self.settings.support_user
 			ticket.custom_app = "Sentry"
-			ticket.agent_group = agent_group
-			ticket.ticket_type = "Sentry Alert"
+			ticket.agent_group = self.rules.get(self.triggered_rule)
+			ticket.ticket_type = self.settings.ticket_type
 			link = self.data.get('event', {}).get('web_url', '')
 			ticket.description = f"""<p>
 			This is auto-generated ticket because an error occurred 10+ times and affects multiple users.<br>
@@ -112,3 +100,11 @@ class SentryWebhookLog(Document):
 	@cached_property
 	def data(self):
 		return json.loads(self.payload).get("data", {})
+
+	@cached_property
+	def rules(self):
+		return {rule.alert_rule: rule.agent_group for rule in self.alert_rules}
+
+	@cached_property
+	def settings(self):
+		return frappe.get_single("Sentry Settings")
