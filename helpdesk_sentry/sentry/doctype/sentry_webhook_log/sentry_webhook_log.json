@@ -76,7 +76,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-11-07 23:28:59.182017",
+ "modified": "2024-11-08 09:27:28.195113",
  "modified_by": "Administrator",
  "module": "Sentry",
  "name": "Sentry Webhook Log",
@@ -92,6 +92,18 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Agent",
    "share": 1,
    "write": 1
   }
